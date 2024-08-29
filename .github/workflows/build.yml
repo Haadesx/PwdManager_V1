@@ -21,6 +21,12 @@ jobs:
       with:
         python-version: 3.8
 
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -30,11 +36,10 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
-
-    - name: Setup Android NDK
-      run: |
-        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;25.2.9519653" --sdk_root=${ANDROID_SDK_ROOT}
-        echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/25.2.9519653" >> $GITHUB_ENV
+      with:
+        api-level: 30
+        ndk-version: 25.2.9519653
+        cmake-version: 3.10.2.4988404
 
     - name: Build APK
       run: |
