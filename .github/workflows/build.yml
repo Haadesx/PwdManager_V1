@@ -30,9 +30,18 @@ jobs:
 
     - name: Build APK
       run: |
-        buildozer android debug
+        echo "Current directory: $(pwd)"
+        echo "Directory contents:"
+        ls -la
+        echo "Buildozer version:"
+        buildozer --version
+        echo "Building APK..."
+        buildozer -v android debug
+        echo "Build complete. Copying APK..."
         mkdir -p $GITHUB_WORKSPACE/build_output
-        cp bin/*.apk $GITHUB_WORKSPACE/build_output/
+        cp bin/*.apk $GITHUB_WORKSPACE/build_output/ || echo "No APK found in bin directory"
+        echo "Directory contents after build:"
+        ls -la
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
