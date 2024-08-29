@@ -1,0 +1,41 @@
+name: Build and Deploy APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential ccache libncurses5:i386 libstdc++6:i386 zlib1g:i386 libz1:i386
+        python -m pip install --upgrade pip
+        pip install buildozer cython
+
+    - name: Build APK
+      run: |
+        buildozer android debug
+        mkdir -p $GITHUB_WORKSPACE/build_output
+        cp bin/*.apk $GITHUB_WORKSPACE/build_output/
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: apk
+        path: build_output/
