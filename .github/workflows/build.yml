@@ -23,8 +23,11 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo dpkg --add-architecture i386
         sudo apt-get update
-        sudo apt-get install -y build-essential ccache libncurses5:i386 libstdc++6:i386 zlib1g:i386 libz1:i386
+        sudo apt-get install -y build-essential ccache
+        sudo apt-get install -y libncurses5:i386 libstdc++6:i386 zlib1g:i386 || true
+        sudo apt-get install -y libncurses5 libstdc++6 zlib1g
         python -m pip install --upgrade pip
         pip install buildozer cython
 
