@@ -23,31 +23,27 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo dpkg --add-architecture i386
         sudo apt-get update
-        sudo apt-get install -y build-essential ccache
-        sudo apt-get install -y libncurses5:i386 libstdc++6:i386 zlib1g:i386 || true
-        sudo apt-get install -y libncurses5 libstdc++6 zlib1g
+        sudo apt-get install -y build-essential ccache libncurses5-dev libstdc++6 zlib1g
         python -m pip install --upgrade pip
         pip install buildozer cython
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Setup Android NDK
+      run: |
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;25.2.9519653" --sdk_root=${ANDROID_SDK_ROOT}
+        echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/25.2.9519653" >> $GITHUB_ENV
+
     - name: Build APK
       run: |
-        echo "Current directory: $(pwd)"
-        echo "Directory contents:"
-        ls -la
-        echo "Buildozer version:"
-        buildozer --version
-        echo "Building APK..."
-        buildozer -v android debug
-        echo "Build complete. Copying APK..."
-        mkdir -p $GITHUB_WORKSPACE/build_output
-        cp bin/*.apk $GITHUB_WORKSPACE/build_output/ || echo "No APK found in bin directory"
-        echo "Directory contents after build:"
-        ls -la
+        buildozer android debug
+      env:
+        ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
-        name: apk
-        path: build_output/
+        name: app-debug
+        path: bin/*.apk
