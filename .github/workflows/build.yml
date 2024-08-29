@@ -41,14 +41,29 @@ jobs:
         ndk-version: 25.2.9519653
         cmake-version: 3.10.2.4988404
 
+    - name: Cache Buildozer dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.buildozer
+        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+
     - name: Build APK
       run: |
-        buildozer android debug
+        buildozer android debug -v
       env:
         ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+      timeout-minutes: 45
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
         name: app-debug
         path: bin/*.apk
+      if: success()
+
+    - name: Upload build logs on failure
+      uses: actions/upload-artifact@v3
+      with:
+        name: buildozer-logs
+        path: .buildozer/logs
+      if: failure()
